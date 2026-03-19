@@ -31,7 +31,7 @@ class PlayScene : Scene
 
        _bricks = new List<Brick>();
         Random random = new Random();
-        int count = random.Next(5, 20);
+        int count = random.Next(10, 30);
 
         for (int i = 0; i < count; i++)
         {
