@@ -13,7 +13,6 @@ public class Brick : GameObject
     public override void Draw(ScreenBuffer buffer)
     {
         buffer.WriteText((int)X, (int)Y, "□□", ConsoleColor.Red);
-        buffer.WriteText((int)X, (int)Y, "□□", ConsoleColor.Red);
     }
 
     public override void Update(float deltaTime)
