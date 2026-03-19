@@ -68,7 +68,8 @@ public class Ball : GameObject
             DY *= -1;
 
             float hitpos = X - paddle.X; // 패들 왼쪽 끝 기준 거리
-         
+            float center = hitpos - paddle.Width / 2f; // 중앙 기준 (-값: 왼쪽, +값: 오른쪽)
+            DX = (float)Math.Round(center / (paddle.Width / 2f) * 2f); // DX를 정수값으로 반올림 하여 흔들림없앰
 
 
         } 

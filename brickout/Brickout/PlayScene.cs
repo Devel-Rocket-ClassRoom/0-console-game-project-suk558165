@@ -19,6 +19,7 @@ class PlayScene : Scene
     public override void Draw(ScreenBuffer buffer) // 화면 출력
     {
         DrawGameObjects(buffer);
+        buffer.WriteText(1, 0, $"Lives: {_lives}", ConsoleColor.Yellow);
     }
 
     public override void Load()  // 무대 세팅
@@ -57,7 +58,7 @@ class PlayScene : Scene
 
             if (_lives <= 0)
             {
-                sceneManager.ChangeScene(new TitleScene(sceneManager));
+                sceneManager.ChangeScene(new GameOverScene(sceneManager));
             }
             else
             {
@@ -69,7 +70,7 @@ class PlayScene : Scene
 
         if (_bricks?.All(b => !b.IsActive) == true)
         {
-            sceneManager.ChangeScene(new TitleScene(sceneManager));
+            sceneManager.ChangeScene(new ClearScene(sceneManager));
         }
         
     }
