@@ -21,10 +21,19 @@ class PlayScene : Scene
         AddGameObject(new Wall(this, 0, 0, 60, 25));
         Paddle paddle = new Paddle(this);
         AddGameObject(paddle);
+
         Ball ball = new Ball(this);
         AddGameObject(ball);
-        Brick brick = new Brick(this);
-        AddGameObject(brick);
+
+        Random random = new Random();
+        int count = random.Next(5, 20);
+
+        for (int i = 0; i < count; i++)
+        {
+            int x = random.Next(2, 55);
+            int y = random.Next(2, 10);
+            AddGameObject(new Brick(this, x, y));
+        }
     }
 
     public override void Update(float deltaTime) // 게임 클리어 

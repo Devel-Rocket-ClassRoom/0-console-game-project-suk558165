@@ -6,8 +6,7 @@ public class Ball : GameObject
     public float Y { get; set; }
     public float DX { get; set; } = 1;
     public float DY { get; set; } = -1;
-    public float Speed { get; set; } = 15f;
-
+   
     private float _moveTimer = 0f;
 
     private float _moveInterval = 0.05f;
@@ -21,7 +20,7 @@ public class Ball : GameObject
 
     public override void Draw(ScreenBuffer buffer)
     {
-        buffer.WriteText((int)Math.Round(X), (int)Math.Round(Y), "*", ConsoleColor.Blue);
+        buffer.WriteText((int)Math.Round(X), (int)Math.Round(Y), "●", ConsoleColor.Blue);
     }
 
     public override void Update(float deltaTime)
