@@ -6,6 +6,7 @@ namespace Framework.Engine
 {
     public class ScreenBuffer
     {
+ 
         private readonly int _width;
         private readonly int _height;
         private char[,] _chars;

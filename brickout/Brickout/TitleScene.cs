@@ -12,8 +12,8 @@ public class TitleScene : Scene
     public override void Draw(ScreenBuffer buffer)
     {
         buffer.WriteTextCentered(7, "Brick Break", ConsoleColor.Cyan);
-        buffer.WriteText(19,10, "← → : 좌우키로 움직이세요.", ConsoleColor.White);
-        buffer.WriteText(19,15, "Space : 공을 발사하세요.", ConsoleColor.White);
+        buffer.WriteText(19,10, "← → : 좌우키로 움직이세요.", ConsoleColor.Yellow);
+        buffer.WriteText(19,15, "Space : 공을 발사하세요.", ConsoleColor.Yellow);
         buffer.WriteTextCentered(17, "Press Enter to Start", ConsoleColor.Green);
     }
 
