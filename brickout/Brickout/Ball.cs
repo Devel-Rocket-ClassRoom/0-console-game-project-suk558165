@@ -8,14 +8,14 @@ public class Ball : GameObject
     public float DY { get; set; } = 1; // Y의 이동방향
 
     private bool _Waiting = true;
-   
+
     private float _moveTimer = 0f; // 이동 누적 시간
 
     private float _moveInterval = 0.05f; // 이동 간격
     private Paddle paddle; // 충돌 체크용 패들 참조
     private List<Brick> bricks; // 충돌 체크용 벽돌 참조
 
-   
+
     public Ball(Scene scene, Paddle paddle, List<Brick> bricks) : base(scene) // 생성자
     {
         this.paddle = paddle;
@@ -39,47 +39,68 @@ public class Ball : GameObject
             }
             return;
         }
-        _moveTimer += deltaTime; // 경과 시간 누적
+
+        _moveTimer += deltaTime;
         if (_moveTimer < _moveInterval) return;
         _moveTimer = 0f;
 
-        X += DX;  
+        float prevX = X;  // 이전 위치 저장
+        float prevY = Y;
+
+        X += DX;
         Y += DY;
 
-        if (X < 1 && DX < 0) // 왼쪽 벽 충돌: 왼쪽으로 가다가 경계 넘으면 오른쪽으로 반전
+        // 왼쪽 벽 충돌
+        if (X < 1 && DX < 0)
         {
             DX *= -1;
-            X = 0.1f; // 벽 안쪽으로 밀어넣기 (연속 반전 방지)
+            X = 1.1f;
         }
-
-        else if (X > 58 && DX > 0) // 오른쪽 벽 충돌: 오른쪽으로 가다가 경계 넘으면 왼쪽으로 반전
+        // 오른쪽 벽 충돌
+        else if (X > 58 && DX > 0)
         {
             DX *= -1;
             X = 57.9f;
         }
-        if (Y < 1 && DY < 0) // 위로 가다 천장에 닿으면
+
+        // 위쪽 벽 충돌
+        if (Y < 1 && DY < 0)
         {
             DY *= -1;
-            Y = 0.1f;
+            Y = 1.1f;
         }
-     
-        if (X >= paddle.X && X <= paddle.X + paddle.Width && Y >= paddle.Y && Y <= paddle.Y + 1) // 패들과의 충돌 판정 
+
+        // 패들 충돌
+        if (X >= paddle.X && X <= paddle.X + paddle.Width && (int)Y == (int)paddle.Y)
         {
             DY *= -1;
+            Y = paddle.Y - 1;  // 패들 위로 밀어넣기
 
-            float hitpos = X - paddle.X; // 패들 왼쪽 끝 기준 거리
-            float center = hitpos - paddle.Width / 2f; // 중앙 기준 (-값: 왼쪽, +값: 오른쪽)
-            DX = (float)Math.Round(center / (paddle.Width / 2f) * 2f); // DX를 정수값으로 반올림 하여 흔들림없앰
+            float hitpos = X - paddle.X;
+            float center = hitpos - paddle.Width / 2f;
+            DX = (float)Math.Round(center / (paddle.Width / 2f) * 2f);
+            if (DX == 0) DX = (DY > 0 ? 1 : -1);
+        }
 
-
-        } 
-        foreach (Brick B in bricks) // 벽돌 순회문
+        bool hit = false;
+        // 벽돌 충돌
+        foreach (Brick B in bricks)
         {
             if (B.IsActive && (int)X >= B.X && (int)X <= B.X + 2 && (int)Y >= B.Y && (int)Y <= B.Y + 1)
+            {
+                if (!hit)
                 {
-                DY *= -1; // 튕기기
-                B.IsActive = false;  // 벽돌 삭제
+                    if (prevY < B.Y || prevY > B.Y + 1)
+                    {
+                        DY *= -1;  // 위아래 충돌
+                    }
+                    else
+                    {
+                        DX *= -1;  // 옆 충돌
+                    }
+                    B.IsActive = false;
                 }
+            }
         }
     }
 }
