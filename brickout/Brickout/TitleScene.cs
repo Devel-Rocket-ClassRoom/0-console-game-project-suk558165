@@ -3,13 +3,13 @@
 public class TitleScene : Scene
 {
 
-    private SceneManager<Scene> _sceneManager;
+    private SceneManager<Scene> _sceneManager; // 필드
 
-    public TitleScene(SceneManager<Scene> manager)
+    public TitleScene(SceneManager<Scene> manager) // 생성자
     {
         _sceneManager = manager;
     }
-    public override void Draw(ScreenBuffer buffer)
+    public override void Draw(ScreenBuffer buffer) // 화면 출력
     {
         buffer.WriteTextCentered(7, "Brick Break", ConsoleColor.Cyan);
         buffer.WriteText(19,10, "← → : 좌우키로 움직이세요.", ConsoleColor.Yellow);
@@ -25,7 +25,7 @@ public class TitleScene : Scene
     {
     }
 
-    public override void Update(float deltaTime)
+    public override void Update(float deltaTime) // 엔터 누르면 화면 플레이화면으로 바뀜
     {
         if (Input.IsKeyDown(ConsoleKey.Enter))
         {

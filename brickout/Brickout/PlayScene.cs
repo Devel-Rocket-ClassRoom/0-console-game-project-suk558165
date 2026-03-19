@@ -24,16 +24,16 @@ class PlayScene : Scene
 
     public override void Load()  // 무대 세팅
     {
-        AddGameObject(new Wall(this, 0, 0, 60, 25));
+        AddGameObject(new Wall(this, 0, 0, 60, 25)); // 벽 생성
 
-        _paddle = new Paddle(this);
+        _paddle = new Paddle(this); // 패들 생성
         AddGameObject(_paddle);
 
-       _bricks = new List<Brick>();
+       _bricks = new List<Brick>(); // 벽돌 배열
         Random random = new Random();
         int count = random.Next(10, 30);
 
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < count; i++) // 배열 배치
         {
             int x = random.Next(2, 55);
             int y = random.Next(2, 10);
