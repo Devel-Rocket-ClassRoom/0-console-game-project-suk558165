@@ -10,12 +10,19 @@ public class Ball : GameObject
     private float _moveTimer = 0f;
 
     private float _moveInterval = 0.05f;
+    private Paddle paddle;
+    private List<Brick> bricks;
 
-
-    public Ball(Scene scene) : base(scene)
+    public Ball(Scene scene, Paddle paddle, Brick bricks) : base(scene) 
     {
         X = 30;
         Y = 16;
+    }
+
+    public Ball(Scene scene, Paddle paddle, List<Brick> bricks) : base(scene)
+    {
+        this.paddle = paddle;
+        this.bricks = bricks;
     }
 
     public override void Draw(ScreenBuffer buffer)
@@ -52,6 +59,14 @@ public class Ball : GameObject
         {
             DY *= -1;
             Y = 23.9f;
+        }
+        if (X == paddle.X && X == paddle.Width) // 패들과의 충돌 판정 
+        {
+            DY *= -1;
+        }
+        if (Y >= paddle.Y)
+        {
+            DY *= -1;
         }
     }
 }

@@ -19,12 +19,11 @@ class PlayScene : Scene
     public override void Load()  // 무대 세팅
     {
         AddGameObject(new Wall(this, 0, 0, 60, 25));
+
         Paddle paddle = new Paddle(this);
         AddGameObject(paddle);
 
-        Ball ball = new Ball(this);
-        AddGameObject(ball);
-
+        List<Brick> bricks = new List<Brick>();
         Random random = new Random();
         int count = random.Next(5, 20);
 
@@ -32,8 +31,12 @@ class PlayScene : Scene
         {
             int x = random.Next(2, 55);
             int y = random.Next(2, 10);
-            AddGameObject(new Brick(this, x, y));
+            Brick brick = (new Brick(this, x, y));
+            bricks.Add(brick);
+            AddGameObject(brick);
         }
+        Ball ball = new Ball(this, paddle, bricks);
+        AddGameObject(ball);
     }
 
     public override void Update(float deltaTime) // 게임 클리어 
