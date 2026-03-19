@@ -10,8 +10,8 @@ namespace Framework.Engine
 
         protected ScreenBuffer Buffer { get; private set; }
 
-        public event GameAction GameStarted;
-        public event GameAction GameStopped;
+        public event GameAction? GameStarted;
+        public event GameAction? GameStopped;
 
         protected GameApp(int width, int height)
         {

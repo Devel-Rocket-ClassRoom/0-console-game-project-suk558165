@@ -1,9 +1,14 @@
 ﻿using System;
 using Framework.Engine;
+using System.Linq;
 
 class PlayScene : Scene
 {
     private SceneManager<Scene> sceneManager;
+    private List<Brick>? _bricks;
+    private int _lives = 3;
+    private Ball? _ball;
+    private Paddle? _paddle;
 
     public PlayScene(SceneManager<Scene> sceneManager)
     {
@@ -20,10 +25,10 @@ class PlayScene : Scene
     {
         AddGameObject(new Wall(this, 0, 0, 60, 25));
 
-        Paddle paddle = new Paddle(this);
-        AddGameObject(paddle);
+        _paddle = new Paddle(this);
+        AddGameObject(_paddle);
 
-        List<Brick> bricks = new List<Brick>();
+       _bricks = new List<Brick>();
         Random random = new Random();
         int count = random.Next(5, 20);
 
@@ -32,16 +37,41 @@ class PlayScene : Scene
             int x = random.Next(2, 55);
             int y = random.Next(2, 10);
             Brick brick = (new Brick(this, x, y));
-            bricks.Add(brick);
+            _bricks.Add(brick);
             AddGameObject(brick);
         }
-        Ball ball = new Ball(this, paddle, bricks);
-        AddGameObject(ball);
+      _ball = new Ball(this, _paddle, _bricks);
+        AddGameObject(_ball);
     }
 
     public override void Update(float deltaTime) // 게임 클리어 
     {
         UpdateGameObjects(deltaTime);
+
+        if (_ball == null || _bricks == null || _paddle == null) return;
+        if (_ball.Y > 24)
+        {
+            _lives--;
+            _ball.IsActive = false;
+            RemoveGameObject(_ball);
+
+            if (_lives <= 0)
+            {
+                sceneManager.ChangeScene(new TitleScene(sceneManager));
+            }
+            else
+            {
+                _ball = new Ball(this, _paddle, _bricks);
+                AddGameObject(_ball);
+
+            }
+        }
+
+        if (_bricks?.All(b => !b.IsActive) == true)
+        {
+            sceneManager.ChangeScene(new TitleScene(sceneManager));
+        }
+        
     }
     public override void Unload() // 게임 승패 조건 체크, 공과 발판 움직임 
     {

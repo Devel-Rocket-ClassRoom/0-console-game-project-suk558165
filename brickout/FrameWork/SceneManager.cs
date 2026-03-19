@@ -2,9 +2,9 @@ namespace Framework.Engine
 {
     public class SceneManager<TScene> where TScene : Scene
     {
-        private TScene _currentScene;
+        private TScene? _currentScene;
 
-        public event GameAction<TScene> SceneChanged;
+        public event GameAction<TScene>? SceneChanged;
 
         public TScene CurrentScene => _currentScene;
 
