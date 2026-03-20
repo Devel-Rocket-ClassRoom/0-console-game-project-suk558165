@@ -22,7 +22,8 @@ public class HardBrick : Brick
     }
     public override void Draw(ScreenBuffer buffer)
     {
-        buffer.WriteText((int)X, (int)Y, "□□", ConsoleColor.Yellow);
+        ConsoleColor color = _hp == 2 ? ConsoleColor.Yellow : ConsoleColor.DarkYellow;
+        buffer.WriteText((int)X, (int)Y, "□□", color);
     }
 }
 

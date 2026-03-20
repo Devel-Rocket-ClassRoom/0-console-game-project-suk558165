@@ -97,6 +97,8 @@ public class Ball : GameObject
         // 충돌 체크 전에 반올림된 위치로 판정
         int rx = (int)Math.Round(X);
         int ry = (int)Math.Round(Y);
+        int prevRx = (int)Math.Round(prevX);  
+        int prevRy = (int)Math.Round(prevY);  
 
         foreach (Brick B in bricks)
         {
@@ -114,12 +116,12 @@ public class Ball : GameObject
 
             hit = true;
             _lastHitBrick = B;
-            _hitCooldown = 4;
+            _hitCooldown = 2;
 
-            bool fromTop = prevY <= bTop;
-            bool fromBottom = prevY >= bBottom;
-            bool fromLeft = prevX <= bLeft;
-            bool fromRight = prevX >= bRight;
+            bool fromTop = prevRy < bTop;
+            bool fromBottom = prevRy > bBottom;
+            bool fromLeft = prevRx < bLeft;
+            bool fromRight = prevRx > bRight;
 
             if (fromTop) { DY *= -1; Y = bTop - 1f; }
             else if (fromBottom) { DY *= -1; Y = bBottom + 1f; }
@@ -128,6 +130,8 @@ public class Ball : GameObject
             else { DY *= -1; Y = bTop - 1f; }
 
             B.Hit();
+            DX = Math.Clamp(DX, -2f, 2f);
+            DY = Math.Clamp(DY, -1f, 1f);
         }
     }
 }

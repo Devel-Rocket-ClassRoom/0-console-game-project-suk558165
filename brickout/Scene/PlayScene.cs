@@ -27,6 +27,10 @@ class PlayScene : Scene
 
     public override void Load()  // 무대 세팅
     {
+        _bricks = null;  // 추가
+        _ball = null;    // 추가
+        _paddle = null;  // 추가
+
         AddGameObject(new Wall(this, 0, 0, 60, 25)); // 벽 생성
 
         _paddle = new Paddle(this); // 패들 생성
@@ -38,7 +42,7 @@ class PlayScene : Scene
         {
             Brick brick = type switch
             {
-                "haed" => new HardBrick(this, x, y),
+                "hard" => new HardBrick(this, x, y),
                 "bomb" => new BombBrick(this, x, y, _bricks),
                 "invincible" => new InvincibleBrick(this, x, y),
                 _ => new Brick(this, x, y)
