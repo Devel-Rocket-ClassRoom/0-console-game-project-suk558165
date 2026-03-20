@@ -76,6 +76,12 @@ public class Ball : GameObject
             if (DX == 0) DX = center >= 0 ? 1 : -1;
         }
     }
+    public void Launch()
+    {
+        _Waiting = false;
+        DY = 1;
+        DX = 0;
+    }
 
     private void CheckBrickCollisionX(float prevX, float prevY)
     {
@@ -113,9 +119,7 @@ public class Ball : GameObject
 
     private void CheckBrickCollisionY(float prevX, float prevY)
     {
-        // 올라갈 때는 판정 안함
-        if (DY < 0) return;
-
+       
         int rx = (int)Math.Round(X);
         int ry = (int)Math.Round(Y);
 

@@ -2,7 +2,7 @@
 using Framework.Engine;
 using System.Linq;
 
-class PlayScene : Scene
+public class PlayScene : Scene
 {
     private SceneManager<Scene> sceneManager;
     private StageManager _stageManager = new StageManager();
@@ -17,6 +17,8 @@ class PlayScene : Scene
     private float _slowTimer = 0f;
     private GameObject? _bottomWall = null;
     private Random _random = new Random();
+    private int _itemCount = 0;
+    private const int _maxItems = 5;
 
     public PlayScene(SceneManager<Scene> sceneManager)
     {
@@ -27,6 +29,7 @@ class PlayScene : Scene
     {
         if (_paddle == null || _bricks == null) return;
         var newBall = new Ball(this, _paddle, _bricks);
+        newBall.Launch(); // 바로 발사
         _balls.Add(newBall);
         AddGameObject(newBall);
     }
@@ -68,6 +71,7 @@ class PlayScene : Scene
         _bottomWall = null;
         _balls.Clear();
         _explodingBombs.Clear();
+        _itemCount = 0;
 
         AddGameObject(new Wall(this, 0, 0, 60, 25));
 
@@ -77,7 +81,6 @@ class PlayScene : Scene
         var stage = _stageManager.GetStage(_currenStage);
         _bricks = new List<Brick>();
 
-        // 벽돌 생성 루프 한 번만
         foreach (var (x, y, type) in stage.BrickPositions)
         {
             Brick brick = type switch
@@ -88,13 +91,13 @@ class PlayScene : Scene
                 _ => new Brick(this, x, y)
             };
 
-            // 아이템 생성 콜백
             float bx = brick.X;
             float by = brick.Y;
             brick.OnHit = () =>
             {
-                if (_random.Next(100) < 30)
+                if (_itemCount < _maxItems && _random.Next(100) < 30)
                 {
+                    _itemCount++;
                     string itemType = _random.Next(4) switch
                     {
                         0 => "multiball",
@@ -104,11 +107,11 @@ class PlayScene : Scene
                         _ => "life"
                     };
                     var item = new AddItem(this, bx, by, itemType, this, _paddle!);
+                    item.OnDeactivate = () => _itemCount--;
                     AddGameObject(item);
                 }
             };
 
-            // 폭발 콜백
             if (brick is BombBrick bomb)
                 bomb.OnExplode = () => _explodingBombs.Add(bomb);
 
