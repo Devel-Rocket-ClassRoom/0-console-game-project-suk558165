@@ -22,8 +22,7 @@ public class HardBrick : Brick
     }
     public override void Draw(ScreenBuffer buffer)
     {
-        ConsoleColor color = _hp == 2 ? ConsoleColor.Yellow : ConsoleColor.DarkYellow;
-        buffer.WriteText((int)X, (int)Y, "□□", color);
+        buffer.WriteText((int)X, (int)Y, "□□", ConsoleColor.Yellow);
     }
 }
 
@@ -39,10 +38,11 @@ public class BombBrick : Brick
         IsActive = false;
         foreach (var b in _bricks)
             if (Math.Abs(b.X - X) <= 4 && Math.Abs(b.Y - Y) <= 2)
+                if (b is not InvincibleBrick)
                 b.IsActive = false;
     }
     public override void Draw(ScreenBuffer buffer)
     {
-        buffer.WriteText((int)X, (int)Y, "□□", ConsoleColor.Yellow);
+        buffer.WriteText((int)X, (int)Y, "□□", ConsoleColor.Magenta);
     }
 }
