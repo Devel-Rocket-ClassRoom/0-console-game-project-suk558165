@@ -9,17 +9,15 @@ public class StageManager
     private string GetRandomType(int stageNumber)
     {
         if (stageNumber == 1) return "normal";
+
         int specialChance = stageNumber * 10;
         if (_random.Next(100) >= specialChance)
             return "normal";
 
-        return _random.Next(3) switch
-        {
-            0 => "hard",
-            1 => "bomb",
-            2 => "invincible",
-            _ => "normal"
-        };
+        int roll = _random.Next(100);
+        if (roll < 10) return "bomb";       // 10%
+        if (roll < 80) return "hard";       // 70%
+        return "invincible";                // 20%
     }
 
     public StageManager()
