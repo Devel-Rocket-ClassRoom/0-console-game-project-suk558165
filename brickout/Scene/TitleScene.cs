@@ -18,6 +18,14 @@ public class TitleScene : Scene
         buffer.WriteText(17, 11, "← →   : 좌우로 이동", ConsoleColor.Yellow);
         buffer.WriteText(17, 12, "Space : 공 발사", ConsoleColor.Yellow);
         buffer.WriteText(17, 13, "Enter : 시작", ConsoleColor.Yellow);
+        buffer.WriteText(15, 17, "□□", ConsoleColor.Red);       
+        buffer.WriteText(17, 17, " 일반  ", ConsoleColor.White);
+        buffer.WriteText(24, 17, "□□", ConsoleColor.Yellow);     
+        buffer.WriteText(26, 17, " 강함  ", ConsoleColor.White);
+        buffer.WriteText(33, 17, "□□", ConsoleColor.Magenta);    
+        buffer.WriteText(35, 17, " 폭탄  ", ConsoleColor.White);
+        buffer.WriteText(42, 17, "□□", ConsoleColor.Gray);       
+        buffer.WriteText(44, 17, " 무적", ConsoleColor.White);
         // 위쪽 장식
         for (int x = 1; x < 58; x += 3)
             buffer.WriteText(x, 1, "□", ConsoleColor.Yellow);
