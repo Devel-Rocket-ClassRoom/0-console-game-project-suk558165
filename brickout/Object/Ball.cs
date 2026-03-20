@@ -15,7 +15,8 @@ public class Ball : GameObject
     private float _moveIntervalDown = 0.08f; // 내려올 때 속도
     private Paddle paddle; // 충돌 체크용 패들 참조
     private List<Brick> bricks; // 충돌 체크용 벽돌 참조
-
+    private Brick? _lastHitBrick = null;
+    private int _hitCooldown = 0;
 
     public Ball(Scene scene, Paddle paddle, List<Brick> bricks) : base(scene) // 생성자
     {
@@ -58,9 +59,9 @@ public class Ball : GameObject
         {
             DX *= -1;
             X = 1.1f;
-           
+
         }
-        
+
         // 오른쪽 벽 충돌
         else if (X > 58 && DX > 0)
         {
@@ -78,54 +79,55 @@ public class Ball : GameObject
         // 패들 충돌감지 : 공이 패들 범위 내에 있고 같은 y행에 위치할때
         if (X >= paddle.X && X <= paddle.X + paddle.Width && Y >= paddle.Y - 1 && Y <= paddle.Y + 1 && DY > 0)
         {
-            DY *= -1; //Y 방향 반전
-            Y = paddle.Y - 1;  // 패들 위로 밀어넣기
+            DY *= -1;
+            Y = paddle.Y - 1;
 
-            float hitpos = X - paddle.X; // x 방향 각도 조절
-            float center = hitpos - paddle.Width / 2f; // 패들 왼쪽 끝 기준 충돌 위치
-            DX = (float)Math.Round(center / (paddle.Width / 2f) * 3f);
-            DX = Math.Clamp(DX, -2f, 2f);
+            float hitpos = X - paddle.X;
+            float center = hitpos - paddle.Width / 2f;
+
+            DX = (float)Math.Round(center / (paddle.Width / 2f) * 2f);
+
+            // DY 반전 전 기준으로 방향 설정
+            if (DX == 0) DX = center >= 0 ? 1 : -1;  // 중앙 기준 오른쪽이면 오른쪽, 왼쪽이면 왼쪽
         }
 
-        bool hit = false; // 한 프레임 여러 벽돌 중복 충돌 방지
+        bool hit = false;
+        if (_hitCooldown > 0) _hitCooldown--;
 
-        // 벽돌 충돌
+        // 충돌 체크 전에 반올림된 위치로 판정
+        int rx = (int)Math.Round(X);
+        int ry = (int)Math.Round(Y);
+
         foreach (Brick B in bricks)
         {
             if (!B.IsActive) continue;
+            if (hit) break;
+            if (B == _lastHitBrick && _hitCooldown > 0) continue;
 
             float bLeft = B.X;
             float bRight = B.X + 2;
             float bTop = B.Y;
             float bBottom = B.Y + 1;
 
-            bool currentOverlap = X >= bLeft && X <= bRight && Y >= bTop && Y <= bBottom;
-            if (!currentOverlap) continue;
+            // 반올림된 위치로 체크
+            if (rx < bLeft || rx > bRight || ry < bTop || ry > bBottom) continue;
 
-            if (!hit)
-            {
-                hit = true;
+            hit = true;
+            _lastHitBrick = B;
+            _hitCooldown = 4;
 
-                bool fromTop = prevY < bTop;
-                bool fromBottom = prevY > bBottom;
-                bool fromLeft = prevX < bLeft;
-                bool fromRight = prevX > bRight;
+            bool fromTop = prevY <= bTop;
+            bool fromBottom = prevY >= bBottom;
+            bool fromLeft = prevX <= bLeft;
+            bool fromRight = prevX >= bRight;
 
-                if (fromTop || fromBottom)
-                    DY *= -1;
-                else if (fromLeft || fromRight)
-                    DX *= -1;
-                else
-                    DY *= -1; // 애매한 경우 위아래 반사
+            if (fromTop) { DY *= -1; Y = bTop - 1f; }
+            else if (fromBottom) { DY *= -1; Y = bBottom + 1f; }
+            else if (fromLeft) { DX *= -1; X = bLeft - 1f; }
+            else if (fromRight) { DX *= -1; X = bRight + 1f; }
+            else { DY *= -1; Y = bTop - 1f; }
 
-                // 벽돌 밖으로 밀어내기
-                if (fromTop) Y = bTop - 1;
-                else if (fromBottom) Y = bBottom + 1;
-                else if (fromLeft) X = bLeft - 1;
-                else if (fromRight) X = bRight + 1;
-
-                B.Hit();
-            }
+            B.Hit();
         }
     }
 }
