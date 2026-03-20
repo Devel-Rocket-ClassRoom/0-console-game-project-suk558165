@@ -12,7 +12,7 @@ class ClearScene : Scene
     public override void Draw(ScreenBuffer buffer)
     {
         buffer.WriteTextCentered(9, "★ Stage Clear ★", ConsoleColor.Green);
-        buffer.WriteTextCentered(10, "Congratulations!", ConsoleColor.Green);
+        buffer.WriteText(10, 15, "Congratulations!", ConsoleColor.Green);
         buffer.WriteTextCentered(15, "Press ENTER to Start ", ConsoleColor.Green);
     }
 
@@ -23,11 +23,6 @@ class ClearScene : Scene
             _sceneManager.ChangeScene(new TitleScene(_sceneManager));
         }
     }
-    public override void Load()
-    {
-    }
-
-    public override void Unload()
-    {
-    }
+    public override void Load() { }
+    public override void Unload() { }
 }

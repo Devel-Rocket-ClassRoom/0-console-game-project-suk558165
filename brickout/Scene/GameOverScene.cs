@@ -15,7 +15,7 @@ public override void Draw(ScreenBuffer buffer)
 
         // 게임오버 텍스트
         buffer.WriteTextCentered(9, "★ GAME OVER ★", ConsoleColor.Red);
-        buffer.WriteTextCentered(12, "You ran out of lives!", ConsoleColor.Yellow);
+        buffer.WriteTextCentered(12, "Try Again!", ConsoleColor.Yellow);
         buffer.WriteTextCentered(15, "Press Enter to Retry", ConsoleColor.Gray);
 
     }
@@ -27,12 +27,7 @@ public override void Draw(ScreenBuffer buffer)
             _sceneManager.ChangeScene(new TitleScene(_sceneManager));
         }
     }
-    public override void Load()
-    {
-    }
-
-    public override void Unload()
-    {
-    }
+    public override void Load() { }
+    public override void Unload() { }
 }
 

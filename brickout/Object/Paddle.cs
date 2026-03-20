@@ -6,7 +6,7 @@ public class Paddle : GameObject
     public float X { get; set; }
     public float Y { get; set; }
     public float Speed { get; set; } = 30f; 
-    public int Width { get; private set; } = 11; 
+    public int Width { get; private set; } = 12; 
 
     public Paddle(Scene scene) : base(scene)
     {

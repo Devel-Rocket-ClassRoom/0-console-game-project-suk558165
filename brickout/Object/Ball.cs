@@ -83,9 +83,8 @@ public class Ball : GameObject
 
             float hitpos = X - paddle.X; // x 방향 각도 조절
             float center = hitpos - paddle.Width / 2f; // 패들 왼쪽 끝 기준 충돌 위치
-            DX = (float)Math.Round(center / (paddle.Width / 2f) * 2f); // 중심 
-
-            if (DX == 0) DX = (DY > 0 ? 1 : -1); // 수직 반사 방지
+            DX = (float)Math.Round(center / (paddle.Width / 2f) * 3f);
+            DX = Math.Clamp(DX, -2f, 2f);
         }
 
         bool hit = false; // 한 프레임 여러 벽돌 중복 충돌 방지
@@ -93,20 +92,39 @@ public class Ball : GameObject
         // 벽돌 충돌
         foreach (Brick B in bricks)
         {
-            if (B.IsActive && (int)X >= B.X && (int)X <= B.X + 2 && (int)Y >= B.Y && (int)Y <= B.Y + 1)
+            if (!B.IsActive) continue;
+
+            float bLeft = B.X;
+            float bRight = B.X + 2;
+            float bTop = B.Y;
+            float bBottom = B.Y + 1;
+
+            bool currentOverlap = X >= bLeft && X <= bRight && Y >= bTop && Y <= bBottom;
+            if (!currentOverlap) continue;
+
+            if (!hit)
             {
-                if (!hit)
-                {
-                    if (prevY < B.Y || prevY > B.Y + 1)
-                    {
-                        DY *= -1;  // 위아래 충돌
-                    }
-                    else
-                    {
-                        DX *= -1;  // 옆 충돌
-                    }
-                    B.IsActive = false;
-                }
+                hit = true;
+
+                bool fromTop = prevY < bTop;
+                bool fromBottom = prevY > bBottom;
+                bool fromLeft = prevX < bLeft;
+                bool fromRight = prevX > bRight;
+
+                if (fromTop || fromBottom)
+                    DY *= -1;
+                else if (fromLeft || fromRight)
+                    DX *= -1;
+                else
+                    DY *= -1; // 애매한 경우 위아래 반사
+
+                // 벽돌 밖으로 밀어내기
+                if (fromTop) Y = bTop - 1;
+                else if (fromBottom) Y = bBottom + 1;
+                else if (fromLeft) X = bLeft - 1;
+                else if (fromRight) X = bRight + 1;
+
+                B.Hit();
             }
         }
     }

@@ -5,21 +5,24 @@ using System.Linq;
 class PlayScene : Scene
 {
     private SceneManager<Scene> sceneManager;
+    private StageManager _stageManager = new StageManager();
+    private int _currenStage = 1;
     private List<Brick>? _bricks;
     private int _lives = 3;
     private Ball? _ball;
     private Paddle? _paddle;
+    private int _stagecount = 1;
 
     public PlayScene(SceneManager<Scene> sceneManager)
     {
         this.sceneManager = sceneManager;
     }
     
-
     public override void Draw(ScreenBuffer buffer) // 화면 출력
     {
         DrawGameObjects(buffer);
-        buffer.WriteText(1, 0, $"Lives: {_lives}", ConsoleColor.Yellow);
+        buffer.WriteText(52, 0, $"Lives: {_lives}", ConsoleColor.Yellow);
+        buffer.WriteText(1, 0, $"Stage: {_stagecount}", ConsoleColor.Yellow);
     }
 
     public override void Load()  // 무대 세팅
@@ -29,19 +32,22 @@ class PlayScene : Scene
         _paddle = new Paddle(this); // 패들 생성
         AddGameObject(_paddle);
 
-       _bricks = new List<Brick>(); // 벽돌 배열
-        Random random = new Random();
-        int count = random.Next(10, 30);
-
-        for (int i = 0; i < count; i++) // 배열 배치
+        var stage = _stageManager.GetStage(_currenStage);
+        _bricks = new List<Brick>();
+        foreach (var (x, y, type) in stage.BrickPositions)
         {
-            int x = random.Next(2, 55);
-            int y = random.Next(2, 10);
-            Brick brick = (new Brick(this, x, y));
+            Brick brick = type switch
+            {
+                "haed" => new HardBrick(this, x, y),
+                "bomb" => new BombBrick(this, x, y, _bricks),
+                "invincible" => new InvincibleBrick(this, x, y),
+                _ => new Brick(this, x, y)
+            };
             _bricks.Add(brick);
             AddGameObject(brick);
         }
-      _ball = new Ball(this, _paddle, _bricks);
+
+        _ball = new Ball(this, _paddle, _bricks);
         AddGameObject(_ball);
     }
 
@@ -68,9 +74,17 @@ class PlayScene : Scene
             }
         }
 
-        if (_bricks?.All(b => !b.IsActive) == true)
+        if (_bricks?.All(b => !b.IsActive || b is InvincibleBrick) == true)
         {
-            sceneManager.ChangeScene(new ClearScene(sceneManager));
+            if (-_currenStage >= _stageManager.GetTotalStages())
+                sceneManager.ChangeScene(new ClearScene(sceneManager));
+            else
+            {
+                _currenStage++;
+                _stagecount++;
+                ClearGameObjects();
+                Load();
+            }
         }
         
     }

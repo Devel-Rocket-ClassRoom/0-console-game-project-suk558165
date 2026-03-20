@@ -17,13 +17,9 @@ public class TitleScene : Scene
         buffer.WriteTextCentered(17, "Press Enter to Start", ConsoleColor.Green);
     }
 
-    public override void Load()
-    {
-    }
-
-    public override void Unload()
-    {
-    }
+    public override void Load() { }
+    
+    public override void Unload() { }
 
     public override void Update(float deltaTime) // 엔터 누르면 화면 플레이화면으로 바뀜
     {

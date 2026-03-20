@@ -10,12 +10,14 @@ public class Brick : GameObject
         Y = y;
     }
 
+    public virtual void Hit()
+    {
+        IsActive = false;
+    }
+
     public override void Draw(ScreenBuffer buffer)
     {
         buffer.WriteText((int)X, (int)Y, "□□", ConsoleColor.Red);
     }
-
-    public override void Update(float deltaTime)
-    {
-    }
+    public override void Update(float deltaTime) { }
 }
