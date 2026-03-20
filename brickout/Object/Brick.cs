@@ -9,15 +9,17 @@ public class Brick : GameObject
         X = x;
         Y = y;
     }
+    public Action? OnHit; // 깨질 때 호출
 
     public virtual void Hit()
     {
         IsActive = false;
+        OnHit?.Invoke();
     }
 
     public override void Draw(ScreenBuffer buffer)
     {
-        buffer.WriteText((int)X, (int)Y, "□□", ConsoleColor.Red);
+        buffer.WriteText((int)X, (int)Y, "■■", ConsoleColor.Red);
     }
     public override void Update(float deltaTime) { }
 }

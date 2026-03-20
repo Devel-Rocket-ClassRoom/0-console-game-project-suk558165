@@ -27,7 +27,7 @@ public class StageManager
         // Stage 1
         var positions1 = new List<(int, int, string)>();
         for (int y = 3; y <= 9; y += 3)
-            for (int x = 4; x <= 52; x += 3)
+            for (int x = 4; x <= 52; x += 5)
                 positions1.Add((x, y, GetRandomType(1)));
         _stages.Add(new StageData(1, 0.08f, positions1));
 
@@ -106,7 +106,7 @@ public class StageManager
         for (int y = 3; y <= 9; y++)
         {
             int startX = (y % 2 == 0) ? 8 : 4;
-            for (int x = startX; x <= 52; x += 8)
+            for (int x = startX; x <= 52; x += 3)
                 positions9.Add((x, y, GetRandomType(9)));
         }
         _stages.Add(new StageData(9, 0.065f, positions9));

@@ -9,6 +9,8 @@ namespace Framework.Engine
         private readonly List<GameObject> _pendingRemove = new List<GameObject>();
         private bool _isUpdating;
 
+        public string DebugText { get; internal set; }
+
         public abstract void Load(); //씬 시작
         public abstract void Update(float deltaTime);
         public abstract void Draw(ScreenBuffer buffer);
