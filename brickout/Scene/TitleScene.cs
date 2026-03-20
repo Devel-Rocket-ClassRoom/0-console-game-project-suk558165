@@ -11,10 +11,20 @@ public class TitleScene : Scene
     }
     public override void Draw(ScreenBuffer buffer) // 화면 출력
     {
-        buffer.WriteTextCentered(7, "Brick Break", ConsoleColor.Cyan);
-        buffer.WriteText(19,10, "← → : 좌우키로 움직이세요.", ConsoleColor.Yellow);
-        buffer.WriteText(19,15, "Space : 공을 발사하세요.", ConsoleColor.Yellow);
-        buffer.WriteTextCentered(17, "Press Enter to Start", ConsoleColor.Green);
+        buffer.WriteTextCentered(3, "╔══════════════════════╗", ConsoleColor.Cyan);
+        buffer.WriteTextCentered(4, "║       B R I C K      ║", ConsoleColor.Cyan);
+        buffer.WriteTextCentered(5, "║       B R E A K      ║", ConsoleColor.Cyan);
+        buffer.WriteTextCentered(6, "╚══════════════════════╝", ConsoleColor.Cyan);
+        buffer.WriteText(17, 11, "← →   : 좌우로 이동", ConsoleColor.Yellow);
+        buffer.WriteText(17, 12, "Space : 공 발사", ConsoleColor.Yellow);
+        buffer.WriteText(17, 13, "Enter : 시작", ConsoleColor.Yellow);
+        // 위쪽 장식
+        for (int x = 1; x < 58; x += 3)
+            buffer.WriteText(x, 1, "□", ConsoleColor.Yellow);
+
+        // 아래쪽 장식
+        for (int x = 1; x < 58; x += 3)
+            buffer.WriteText(x, 23, "□", ConsoleColor.Yellow);
     }
 
     public override void Load() { }

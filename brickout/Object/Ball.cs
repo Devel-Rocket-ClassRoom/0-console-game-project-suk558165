@@ -76,7 +76,7 @@ public class Ball : GameObject
         }
 
         // 패들 충돌감지 : 공이 패들 범위 내에 있고 같은 y행에 위치할때
-        if (X >= paddle.X && X <= paddle.X + paddle.Width && (int)Y == (int)paddle.Y)
+        if (X >= paddle.X && X <= paddle.X + paddle.Width && Y >= paddle.Y - 1 && Y <= paddle.Y + 1 && DY > 0)
         {
             DY *= -1; //Y 방향 반전
             Y = paddle.Y - 1;  // 패들 위로 밀어넣기
