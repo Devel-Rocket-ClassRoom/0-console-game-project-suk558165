@@ -1,25 +1,30 @@
-﻿using Framework.Engine;
+using Framework.Engine;
 
 public class Ball : GameObject
 {
     public float X { get; set; }
     public float Y { get; set; }
     public float DX { get; set; } = 0;
-    public float DY { get; set; } = 1;
+    public float DY { get; set; } = -1; // Fix6: 위로 발사
 
     private bool _Waiting = true;
     private float _moveTimer = 0f;
-    private float _moveIntervalUp = 0.08f;
-    private float _moveIntervalDown = 0.08f;
+    private float _moveInterval = 0.08f; // 스테이지별로 SetInterval()로 조정
     private Paddle paddle;
     private List<Brick> bricks;
     private Brick? _lastHitBrick = null;
     private int _hitCooldown = 0;
 
-    // PlayScene에서 wall 아이템 활성화 여부를 알려주는 플래그
-    // true이면 바닥 근처에서 공을 위로 튕겨냄 (Y=23 라인을 벽으로 취급)
     public static bool BottomWallActive { get; set; } = false;
-    private const int BottomWallY = 23; // 하단 벽 Y 좌표
+    private const float BottomWallY = 23f; // Fix9: float
+
+    private const float BrickW = 2f;
+    private const float BrickH = 1f;
+    private const float Margin = 0.45f;
+
+    private int _xCooldown = 0;
+    private int _yCooldown = 0;
+    private const int CooldownFrames = 3;
 
     public Ball(Scene scene, Paddle paddle, List<Brick> bricks) : base(scene)
     {
@@ -44,111 +49,159 @@ public class Ball : GameObject
         }
 
         _moveTimer += deltaTime;
-        float interval = DY > 0 ? _moveIntervalDown : _moveIntervalUp;
-        if (_moveTimer < interval) return;
-        _moveTimer -= interval;
+        if (_moveTimer < _moveInterval) return;
+        _moveTimer -= _moveInterval;
 
         if (_hitCooldown > 0) _hitCooldown--;
+        if (_xCooldown > 0)   _xCooldown--;
+        if (_yCooldown > 0)   _yCooldown--;
 
         float prevX = X;
         float prevY = Y;
 
-        // X 이동 후 X방향 충돌 체크
+        // X 이동 → X축 충돌
         X += DX;
         CheckBrickCollisionX(prevX, prevY);
 
-        // Y 이동 후 Y방향 충돌 체크
+        // Y 이동 → Y축 충돌
         Y += DY;
         CheckBrickCollisionY(prevX, prevY);
 
-        // 왼쪽 벽 충돌
-        if (X < 1 && DX < 0) { DX *= -1; X = 1f; }
-        // 오른쪽 벽 충돌
-        else if (X > 58 && DX > 0) { DX *= -1; X = 58f; }
-        // 위쪽 벽 충돌
-        if (Y <= 1 && DY < 0) { DY *= -1; Y = 1f; }
+        // 벽 충돌 (방향 강제)
+        if (X < 1f && DX < 0)       { DX = Math.Abs(DX);  X = 1f; }
+        else if (X > 58f && DX > 0) { DX = -Math.Abs(DX); X = 58f; }
+        if (Y <= 1f && DY < 0)      { DY = Math.Abs(DY);  Y = 1f; }
 
-        // 하단 벽 아이템 충돌 — wall 아이템이 활성화된 경우 바닥선에서 튕겨냄
+        // 하단 wall 아이템 충돌 — Fix8: Math.Abs 방향 강제
         if (BottomWallActive && Y >= BottomWallY && DY > 0)
         {
-            DY *= -1;
-            Y = BottomWallY - 1f;
+            DY = -Math.Abs(DY);
+            Y  = BottomWallY - 1f;
         }
 
-        // 패들 충돌
-        if (X >= paddle.X && X <= paddle.X + paddle.Width && Y >= paddle.Y - 1 && Y <= paddle.Y + 1 && DY > 0)
+        // 패들 충돌 — Fix8: Math.Abs 방향 강제로 진동 방지
+        if (DY > 0 &&
+            X >= paddle.X - Margin && X <= paddle.X + paddle.Width + Margin &&
+            Y >= paddle.Y - 0.5f   && Y <= paddle.Y + 0.5f)
         {
-            DY *= -1;
-            Y = paddle.Y - 1;
+            DY = -Math.Abs(DY);
+            Y  = paddle.Y - 0.5f;
 
             float hitpos = X - paddle.X;
             float center = hitpos - paddle.Width / 2f;
-
             DX = Math.Clamp((float)Math.Round(center / (paddle.Width / 2f)), -1f, 1f);
-            if (DX == 0) DX = center >= 0 ? 1 : -1;
+            if (DX == 0) DX = center >= 0 ? 1f : -1f;
         }
     }
 
     public void Launch()
     {
         _Waiting = false;
-        DY = 1;
-        DX = 0;
+        DY = -1f;
+        DX = 0f;
     }
 
+    // 스테이지 시작 시 PlayScene에서 호출 — StageData.BallInterval 값을 그대로 넘기면 됨
+    public void SetInterval(float interval) => _moveInterval = interval;
+
+    // X 이동 직후 호출 — 이 시점에 Y는 아직 이동 전(Y == prevY)
+    // Fix1: prevY 하나로만 Y범위 체크 (이동 전/후 동일하므로 정확)
     private void CheckBrickCollisionX(float prevX, float prevY)
     {
-        // DX가 0이면 X이동이 없으니 체크 불필요
-        if (DX == 0) return;
-
-        int rx = DX < 0 ? (int)Math.Ceiling(X) : (int)Math.Floor(X);
-        int ry = (int)Math.Round(Y);
+        if (DX == 0 || _xCooldown > 0) return;
 
         foreach (Brick B in bricks)
         {
             if (!B.IsActive) continue;
             if (B == _lastHitBrick && _hitCooldown > 0) continue;
 
-            int bLeft = (int)B.X;
-            int bRight = (int)B.X + 1;
-            int bTop = (int)B.Y;
-            int bBottom = (int)B.Y + 1;
+            float bLeft   = B.X;
+            float bRight  = B.X + BrickW;
+            float bTop    = B.Y;
+            float bBottom = B.Y + BrickH;
 
-            // X방향에서만 진입했을 때만 판정
-            // 이전 Y위치가 벽돌 범위 안에 있어야 옆에서 온 것
-            if (rx >= bLeft && rx <= bRight &&
-                ry >= bTop && ry <= bBottom &&
-                prevY >= bTop && prevY <= bBottom + 1)
+            // Fix1: X이동 시점엔 Y == prevY이므로 prevY만으로 체크
+            if (prevY < bTop - Margin || prevY > bBottom + Margin) continue;
+
+            if (DX > 0)
             {
-                DX *= -1;
-                X = prevX;
-                _lastHitBrick = B;
-                _hitCooldown = 3;
-                B.Hit();
-                break;
+                // Fix4: < 로 수정 (경계선 위에 있을 때도 판정)
+                if (prevX + Margin < bLeft && X + Margin >= bLeft)
+                {
+                    DX = -Math.Abs(DX);
+                    X  = bLeft - Margin;
+                    _lastHitBrick = B;
+                    _hitCooldown  = CooldownFrames;
+                    _xCooldown    = CooldownFrames;
+                    B.Hit();
+                    break;
+                }
+            }
+            else
+            {
+                // Fix4: > 로 수정
+                if (prevX - Margin > bRight && X - Margin <= bRight)
+                {
+                    DX = Math.Abs(DX);
+                    X  = bRight + Margin;
+                    _lastHitBrick = B;
+                    _hitCooldown  = CooldownFrames;
+                    _xCooldown    = CooldownFrames;
+                    B.Hit();
+                    break;
+                }
             }
         }
     }
 
+    // Y 이동 직후 호출 — 이 시점에 X는 이미 이동 완료
+    // prevX, X 둘 다 체크해서 X이동으로 인한 오판 방지
     private void CheckBrickCollisionY(float prevX, float prevY)
     {
-        int rx = (int)Math.Round(X);
-        int ry = (int)Math.Round(Y);
+        if (_yCooldown > 0) return;
 
         foreach (Brick B in bricks)
         {
             if (!B.IsActive) continue;
             if (B == _lastHitBrick && _hitCooldown > 0) continue;
 
-            if (rx >= (int)B.X && rx <= (int)B.X + 4 &&
-                ry >= (int)B.Y && ry <= (int)B.Y + 1)
+            float bLeft   = B.X;
+            float bRight  = B.X + BrickW;
+            float bTop    = B.Y;
+            float bBottom = B.Y + BrickH;
+
+            // X는 이동 완료 — 현재 X와 이동 전 prevX 중 하나라도 범위 안이면 인정
+            bool xInRange = (X     >= bLeft - Margin && X     <= bRight + Margin) ||
+                            (prevX >= bLeft - Margin && prevX <= bRight + Margin);
+            if (!xInRange) continue;
+
+            if (DY > 0)
             {
-                DY *= -1;
-                Y = prevY;
-                _lastHitBrick = B;
-                _hitCooldown = 3;
-                B.Hit();
-                break;
+                // Fix4: <
+                if (prevY + Margin < bTop && Y + Margin >= bTop)
+                {
+                    DY = -Math.Abs(DY);
+                    Y  = bTop - Margin;
+                    _lastHitBrick = B;
+                    _hitCooldown  = CooldownFrames;
+                    _yCooldown    = CooldownFrames;
+                    B.Hit();
+                    break;
+                }
+            }
+            else
+            {
+                // Fix4: >
+                if (prevY - Margin > bBottom && Y - Margin <= bBottom)
+                {
+                    DY = Math.Abs(DY);
+                    Y  = bBottom + Margin;
+                    _lastHitBrick = B;
+                    _hitCooldown  = CooldownFrames;
+                    _yCooldown    = CooldownFrames;
+                    B.Hit();
+                    break;
+                }
             }
         }
     }

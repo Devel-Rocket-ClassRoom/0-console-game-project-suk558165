@@ -33,6 +33,8 @@ public class PlayScene : Scene
     {
         if (_paddle == null || _bricks == null) return;
         var newBall = new Ball(this, _paddle, _bricks);
+        var stage = _stageManager.GetStage(_currenStage);
+        newBall.SetInterval(stage.BallInterval); // 멀티볼도 동일 속도
         newBall.Launch();
         _balls.Add(newBall);
         AddGameObject(newBall);
@@ -73,6 +75,12 @@ public class PlayScene : Scene
         DrawGameObjects(buffer);
         buffer.WriteText(52, 0, $"Lives: {_lives}", ConsoleColor.Yellow);
         buffer.WriteText(1, 0, $"Stage: {_stagecount}", ConsoleColor.Yellow);
+
+        // 현재 속도 레벨 표시 (★ 개수)
+        var stage = _stageManager.GetStage(_currenStage);
+        string speedStars = new string('★', stage.BallSpeedLevel) +
+                            new string('☆', 5 - stage.BallSpeedLevel);
+        buffer.WriteText(20, 0, $"SPD {speedStars}", ConsoleColor.Cyan);
 
         foreach (var bomb in _explodingBombs)
             bomb.DrawExplode(buffer);
@@ -141,6 +149,7 @@ public class PlayScene : Scene
         }
 
         _ball = new Ball(this, _paddle, _bricks);
+        _ball.SetInterval(stage.BallInterval); // 스테이지별 공 속도 적용
         AddGameObject(_ball);
     }
 
