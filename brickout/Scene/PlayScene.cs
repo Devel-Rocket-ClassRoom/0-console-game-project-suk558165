@@ -8,7 +8,7 @@ public class PlayScene : Scene
     private StageManager _stageManager = new StageManager();
     private int _currenStage = 1;
     private List<Brick>? _bricks;
-    private int _lives = 3;
+    private int _lives = 5;
     private Ball? _ball;
     private Paddle? _paddle;
     private int _stagecount = 1;
@@ -175,6 +175,11 @@ public class PlayScene : Scene
 
         if (_ball == null || _bricks == null || _paddle == null) return;
 
+        // ── 마지막 벽돌 남았을 때 AutoAim 활성화 ──
+        int remaining = _bricks.Count(b => b.IsActive && b is not InvincibleBrick);
+        if (_ball != null) _ball.AutoAim = (remaining <= 1);
+        foreach (var b in _balls) b.AutoAim = (remaining <= 1);
+
         // ── 공이 바닥 아래로 떨어졌을 때 처리 ──
         // wall 아이템이 활성화된 경우 Ball.cs에서 튕겨내므로 여기까지 오지 않음
         if (_ball.Y > 24)
@@ -192,6 +197,8 @@ public class PlayScene : Scene
             else
             {
                 _ball = new Ball(this, _paddle, _bricks);
+                var stage = _stageManager.GetStage(_currenStage);
+                _ball.SetInterval(stage.BallInterval);
                 AddGameObject(_ball);
             }
         }
