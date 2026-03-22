@@ -26,7 +26,10 @@ public class HardBrick : Brick
         if (_hp <= 0)
         {
             IsActive = false;   // 내구도 0이 되면 비활성화
-            OnHit?.Invoke();    // 완전히 깨질 때만 콜백 호출
+
+            // 1스테이지 아이템 드랍 없음, 이후 스테이지 확률 판정은 Brick.OnHit와 동일 규칙
+            if (CurrentStage > 1 && new Random().NextDouble() < 0.08)
+                OnHit?.Invoke(); // 완전히 깨질 때만 콜백 호출
         }
     }
 

@@ -16,6 +16,11 @@ public class Ball : GameObject
     private Brick? _lastHitBrick = null;
     private int _hitCooldown = 0;
 
+    // PlayScene에서 wall 아이템 활성화 여부를 알려주는 플래그
+    // true이면 바닥 근처에서 공을 위로 튕겨냄 (Y=23 라인을 벽으로 취급)
+    public static bool BottomWallActive { get; set; } = false;
+    private const int BottomWallY = 23; // 하단 벽 Y 좌표
+
     public Ball(Scene scene, Paddle paddle, List<Brick> bricks) : base(scene)
     {
         this.paddle = paddle;
@@ -63,6 +68,13 @@ public class Ball : GameObject
         // 위쪽 벽 충돌
         if (Y <= 1 && DY < 0) { DY *= -1; Y = 1f; }
 
+        // 하단 벽 아이템 충돌 — wall 아이템이 활성화된 경우 바닥선에서 튕겨냄
+        if (BottomWallActive && Y >= BottomWallY && DY > 0)
+        {
+            DY *= -1;
+            Y = BottomWallY - 1f;
+        }
+
         // 패들 충돌
         if (X >= paddle.X && X <= paddle.X + paddle.Width && Y >= paddle.Y - 1 && Y <= paddle.Y + 1 && DY > 0)
         {
@@ -76,6 +88,7 @@ public class Ball : GameObject
             if (DX == 0) DX = center >= 0 ? 1 : -1;
         }
     }
+
     public void Launch()
     {
         _Waiting = false;
@@ -119,7 +132,6 @@ public class Ball : GameObject
 
     private void CheckBrickCollisionY(float prevX, float prevY)
     {
-       
         int rx = (int)Math.Round(X);
         int ry = (int)Math.Round(Y);
 
